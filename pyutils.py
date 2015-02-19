@@ -8,14 +8,6 @@ def flatten(list_):
         flattened = [item for sublist in flattened for item in sublist]
     return flattened
 
-# Flatten a list of lists to a defined depth
-def flattenToDepth(list_, depth):
-    flattened = list_
-    while depth > 1:
-        flattened = [item for sublist in flattened for item in sublist]
-        depth -= 1
-    return flattened
-
 # Sort a list of strings by the length of the string
 def sortByLength(list_):
     listLength = map(len, list_)
