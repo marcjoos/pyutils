@@ -1,3 +1,22 @@
+#===============================================================================
+## \file fileutils.py
+# \brief
+# Class to manage temporary directory and file manipulation
+# \author
+# Marc Joos <marc.joos@gmail.com>
+# \copyright
+# Copyrights 2015, Marc Joos.
+# This file is distributed under the CeCILL-A & GNU/GPL licenses, see
+# <http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html> and
+# <http://www.gnu.org/licenses/>
+# \date
+# \b created:          02-19-2015
+# \b last \b modified: 02-19-2015
+
+#===============================================================================
+import os
+import re
+
 class FileTree:
     """Class to manage directory tree"""
     def __init__(self, inputDir="./", tmpRoot='./tmp', extension=['.f90', '.F90']):
@@ -8,7 +27,6 @@ class FileTree:
             self.tmp = True
         else:
             self.tmp = False
-        # Reorder extensions by character length
         extLen = map(len, extension)
         extension = [item for (len_, item) in sorted(zip(extLen, extension))]
         self.extension = extension
@@ -50,12 +68,19 @@ class FileTree:
             for i, fileList in enumerate(self.fileList):
                 iterList = fileList.__iter__()
                 filesToRemove = []
+                filesToKeep = []
                 for file_ in iterList:
-                    if not(file_[-4:] in ['.f90', '.F90'] or \
-                       file_[-2:] in ['.f', '.F']):
-                        filesToRemove.append(file_)
+                    for fileExt in self.extension:
+                        if file_[-len(fileExt):] in fileExt:
+                            filesToKeep.append(file_)
                     if file_[0] == '#':
                         print('Warning: you probably forgot to save ' + file_)
+                        filesToRemove.append(file_)
+                iterList = fileList.__iter__()
+                for file_ in iterList:
+                    if (file_ in filesToKeep) & (file_ in filesToRemove):
+                        filesToRemove.remove(file_)
+                    if file_ not in filesToKeep:
                         filesToRemove.append(file_)
                 if filesToRemove:
                     for file_ in filesToRemove:
