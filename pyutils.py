@@ -12,3 +12,31 @@ def flatten(list_):
 def sortByLength(list_):
     listLength = map(len, list_)
     return [item for (len_, item) in sorted(zip(listLength, list))]
+
+# Walk a nested list, return the path to each node and its value
+def _walk(obj, path=(), memo=None):
+    if memo is None:
+        memo = set()
+    iterator = None
+    if isinstance(obj, list):
+        iterator = enumerate
+    if iterator:
+        if id(obj) not in memo:
+            memo.add(id(obj))
+            for path_component, value in iterator(obj):
+                for result in _walk(value, path + (path_component,), memo):
+                    yield result
+            memo.remove(id(obj))
+    else:
+        yield path, obj
+
+# Modify strings in a nested list
+def _modifyAST(ast, prefix="dictDat['", suffix="']"):
+    word = re.compile('\w+')
+    for path, value in _walk(ast):
+        if isinstance(value, str):
+            if word.match(value):
+                parent = ast
+                for step in path[:-1]:
+                    parent = parent[step]
+                parent[path[-1]] = prefix + value + suffix
